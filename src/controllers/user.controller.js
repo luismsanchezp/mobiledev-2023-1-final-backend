@@ -103,7 +103,17 @@ async function update(req, res) {
         } else {
             var dict = {};
             if (req.body.email !== undefined) dict.email = req.body.email;
-            if (req.body.password !== undefined) dict.password = req.body.password;
+            if (req.body.password !== undefined) {
+                hashPassword(req.body.password)
+                .then((hash) => {
+                    dict.password = hash;
+                })
+                .catch((err) => {
+                    res.status(500).send({ error: "Server cannot hash password."});
+                    console.debug(err);
+                    return;
+                });
+            }
             if (req.body.role !== undefined && user.role === User.roles.admin) dict.role = req.body.role;
             if (req.body.active !== undefined && user.role === User.roles.admin) dict.active = req.body.active;
             
